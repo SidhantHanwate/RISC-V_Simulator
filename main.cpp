@@ -9,7 +9,6 @@ jt    : maps the func_name to its location in the code
 */
 
 map<string, int> m;
-char *x2;
 vector<vector<string>> tokens;
 unordered_map<string, int> jt;
 
@@ -115,9 +114,7 @@ void recog_instr()
 // This function is for assigning the values of all the registers
 void assign()
 {
-    m["x0"] = 0;
-    m["x1"] = 0;
-    for (int i = 3; i < 32; i++)
+    for (int i = 0; i < 32; i++)
     {
         string str = "x";
         str += to_string(i);
@@ -128,9 +125,11 @@ void assign()
 // This function will display all the values of the registers
 void display_reg()
 {
-    for (auto a : m)
+    for (int i = 0; i < 32; i++)
     {
-        cout << a.first << " " << a.second << endl;
+        string str = "x";
+        str += to_string(i);
+        cout << str << " " << m[str] << endl;
     }
 }
 
@@ -157,6 +156,33 @@ void form_tokens()
     }
 }
 
+// interacts with the user to perform certain task
+void user_interaction()
+{
+    cout << "Choose from the below mentioned options:\n 1) Display all register values \n 2) Print calue of a particular register \n";
+    int inp;
+    cin >> inp;
+    switch (inp)
+    {
+    case 1:
+        display_reg();
+        break;
+
+    case 2:
+        string reg;
+        cin >> reg;
+        if (reg[0] == 'x' && reg.substr(1, 2) >= "0" && reg.substr(1, 2) < "32") // check if the register is value
+        {
+            cout << "value stored in " << reg << " is: " << m[reg] << endl;
+        }
+        else
+        {
+            cout << "Invalid register!\n";
+        }
+        break;
+    }
+}
+
 int main()
 {
 
@@ -164,6 +190,6 @@ int main()
     jump();
     assign();
     recog_instr();
-    display_reg();
+    user_interaction();
     return 0;
 }
