@@ -8,9 +8,11 @@ tokens: converts entire code from asm file to string tokens
 jt    : maps the func_name to its location in the code
 */
 
-map<string, int> m;
+unordered_map<string, int> m;
 vector<vector<string>> tokens;
 unordered_map<string, int> jt;
+int mem_int[2048];
+char mem_strings[2048];
 
 // creating this function to store all the locations in the code
 void jump()
@@ -21,7 +23,7 @@ void jump()
         {
             if (tokens[i][0].at(tokens[i][0].length() - 1) == ':')
             {
-                jt[tokens[i][0]] = i; // j[func_name]=i;
+                jt[tokens[i][0]] = i;
             }
         }
     }
@@ -35,36 +37,30 @@ void recog_instr()
     {
         for (int j = 0; j < tokens[i].size(); j++)
         {
-            if (tokens[i][j].compare("li") == 0 || tokens[i][j].compare("sw") == 0 || tokens[i][j].compare("lw") == 0)
+            if (tokens[i][j].compare("li") == 0)
             {
                 m[tokens[i][j + 1]] = stoi(tokens[i][j + 2]);
             }
-
             else if (tokens[i][j] == "add")
             {
                 m[tokens[i][j + 1]] = m[tokens[i][j + 2]] + m[tokens[i][j + 3]];
             }
-
             else if (tokens[i][j] == "sub")
             {
                 m[tokens[i][j + 1]] = m[tokens[i][j + 2]] - m[tokens[i][j + 3]];
             }
-
             else if (tokens[i][j] == "mul")
             {
                 m[tokens[i][j + 1]] = m[tokens[i][j + 2]] * m[tokens[i][j + 3]];
             }
-
             else if (tokens[i][j] == "div")
             {
                 m[tokens[i][j + 1]] = m[tokens[i][j + 2]] - m[tokens[i][j + 3]];
             }
-
             else if (tokens[i][j] == "addi")
             {
                 m[tokens[i][j + 1]] = m[tokens[i][j + 2]] + stoi(tokens[i][j + 3]);
             }
-
             else if (tokens[i][j] == "bne")
             {
                 if (m[tokens[i][j + 1]] != m[tokens[i][j + 2]])
@@ -75,7 +71,6 @@ void recog_instr()
                     j = 0;
                 }
             }
-
             else if (tokens[i][j] == "beq")
             {
                 if (m[tokens[i][j + 1]] == m[tokens[i][j + 2]])
@@ -86,7 +81,6 @@ void recog_instr()
                     j = 0;
                 }
             }
-
             else if (tokens[i][j] == "jal")
             {
                 string func_name = tokens[i][j + 2];
@@ -94,17 +88,42 @@ void recog_instr()
                 i = jt[func_name];
                 j = 0;
             }
-
             else if (tokens[i][j][0] == '#')
             {
                 break;
             }
-
             else if (tokens[i][j] == "end")
             {
                 flag = true;
                 break;
             }
+            else if (tokens[i][j] == "bgt")
+            {
+                if (m[tokens[i][j + 1]] > m[tokens[i][j + 2]])
+                {
+                    string fun_name = tokens[i][j + 3];
+                    fun_name += ":";
+                    i = jt[fun_name];
+                    j = 0;
+                }
+            }
+            else if (tokens[i][j] == "blt")
+            {
+                if (m[tokens[i][j + 1]] < m[tokens[i][j + 2]])
+                {
+                    string fun_name = tokens[i][j + 3];
+                    fun_name += ":";
+                    i = jt[fun_name];
+                    j = 0;
+                }
+            }
+            // else if (tokens[i][j] == "lw")
+            // {
+            //     int p = (stoi(tokens[i][j + 2]) + m[tokens[i][j + 3]]);
+            //     m[tokens[i][j + 1]];
+            // else if (tokens[i][j] == "sw")
+            // {
+            // }
         }
         if (flag == true)
             break;
@@ -146,7 +165,7 @@ void form_tokens()
         getline(in, s);
         char p[s.length()];
         strcpy(p, s.c_str());
-        char *token = strtok(p, " ,");
+        char *token = strtok(p, " ,()");
         while (token)
         {
             Tokenizer.push_back(token);
